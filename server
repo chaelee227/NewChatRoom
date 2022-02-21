@@ -1,0 +1,50 @@
+import socket 
+import time
+
+s = socket.socet(socket.AF_INET,socket.SOCK_STREAM) 소켁 객체생성
+address = ('localhost', 5000)  #=임의주소, 포트번호
+s.bind(address) 소켓과 주소 곃합
+s.listen(5)  연결대기, 5개까지 동시수용
+
+
+클라이언트가 커넥트를 통해 연결요청을 받게되면
+while True:
+#client -> 소켓 통신용
+#ㄴ -> 서버소켓 연결용
+    client, addr = s.accept() 연결허용 (client socket, rem_addr)반환  rem_Addr =ip +port
+    print("Connection requested from", addr)
+    client.send(time.ctime(time.time()).encode()) 현재시간을 전송
+    client.close() 소켓 종료
+
+
+from email.utils import parseaddr
+import threading 
+import socket
+
+
+HEADER = 64
+PORT = 55555
+## server = '172.21.80.1' # localhost
+SERVER = socket.gethostbyname(socket.gethostname())
+ADDR = (SERVER,PORT)
+
+server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+server.bind(ADDR)
+
+def handle_clinet(conn, addr):
+    print(f"[NEW CONNECTION {addr} connected.")
+    
+    connected = True
+    while connected:
+        msg = conn.recv()
+
+def start():
+    server.listen()
+    while True:
+        conn, addr = server.accept()
+        thread = threading.Thread(target = handle_clinet, args=(conn, addr))
+        thread.start()
+        print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
+
+print("[STARTING] server is starting...")
+start()

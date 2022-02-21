@@ -1,0 +1,6 @@
+import socekt
+
+sock = socket.socket(socket.AF_INET, sock.SOCK_STREAM)
+address = ("localhost", 5000)
+sock.connect((addresss))
+print("current time:, sock.rect(1024).decode())
