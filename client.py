@@ -9,6 +9,11 @@ SAD = ":("
 TIME = ":mytime"
 PLUS_HOUR = ":+1hr"
 
+def display(name) :
+    you=name +" : "
+    sys.stdout.write(you)
+    sys.stdout.flush()
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-join', action="store_true")
 parser.add_argument('-host')
@@ -21,6 +26,17 @@ localhost = args.host
 port = args.port
 username = args.username
 userPwd = args.passcode
+
+if len(username)>8:
+    username = username[0:8]
+    print(username)
+    
+if len(userPwd)>5:
+    print("invalid passcode - the passcod has to be up to 5 length")
+    sys.exit()
+elif userPwd.isalnum() == False:
+    print("invalid passcode - only alpha numberic character is allowed")
+    sys.exit()
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 address = (localhost, int(port))
@@ -47,9 +63,13 @@ def write():
     while True:
         message = f'{username}: {input("")}'
         client.send(message.encode('ascii'))
-        
-receive_thread = threading.Thread(target= receive)
-receive_thread.start()
+ 
+def Main():       
+    receive_thread = threading.Thread(target= receive)
+    receive_thread.start()
 
-write_thread = threading.Thread(target=write)
-write_thread.start()
+    write_thread = threading.Thread(target=write)
+    write_thread.start()
+
+if __name__ == '__main__':
+    Main()

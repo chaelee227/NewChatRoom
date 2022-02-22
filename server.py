@@ -68,7 +68,7 @@ def handle(client):
                 clients.remove(client)
                 client.close()
                 usernames.remove(username) 
-                break    
+                continue    
                 
             else:
                 broadcast(message)
@@ -116,7 +116,10 @@ def receive():
         #client.close() #소켓 종료
 
 
-
-print ("*************************Listening for the clients*************************")
-receive()
+def Main():
+    print ("*************************Listening for the clients*************************")
+    receive()
+    
+if __name__ == '__main__':
+    Main()
 
