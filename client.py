@@ -3,19 +3,24 @@ import threading
 import sys
 import argparse
 
+EXIT = ":Exit"
+HAPPY = ":)"
+SAD = ":("
+TIME = ":mytime"
+PLUS_HOUR = ":+1hr"
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-join', action="store_true")
 parser.add_argument('-host')
 parser.add_argument('-port')
 parser.add_argument('-username')
-#parser.add_argument('-passcode')
+parser.add_argument('-passcode')
 args = parser.parse_args()
 
 localhost = args.host
 port = args.port
 username = args.username
-#userPwd = args.passcode
+userPwd = args.passcode
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 address = (localhost, int(port))
@@ -29,6 +34,8 @@ def receive():
             if message == 'NICK':
                 client.send(username.encode('ascii'))
                 #client.send(userPwd.encode('ascii'))
+            elif message == 'PASS':
+                client.send(userPwd.encode('ascii'))
             else:
                 print(message)
         except:
