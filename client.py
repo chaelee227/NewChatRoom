@@ -2,6 +2,7 @@ import socket
 import threading
 import sys
 import argparse
+import time
 
 EXIT = ":Exit"
 HAPPY = ":)"
@@ -52,24 +53,47 @@ def receive():
                 #client.send(userPwd.encode('ascii'))
             elif message == 'PASS':
                 client.send(userPwd.encode('ascii'))
+            elif message == 'QUIT':
+                print("Bye~")
+                print("Press Return key to restart")
+                break
+            elif message == 'DUPL':
+                print("Username already exists")
+                print("Press return key to restart")
+                break
             else:
                 print(message)
+                #display(username)
         except:
             print("An error occurred!")
-            client.close()
             break
+    client.close()
+    sys.exit()
         
 def write():
     while True:
-        message = f'{username}: {input("")}'
-        client.send(message.encode('ascii'))
+        try:
+            message = f'{username}: {input("")}'
+            #print(111111111)
+            #print(message)
+            #sys.stdout.write(message)
+            client.send(message.encode('ascii'))
+            #sys.stdout.flush()
+            #print(2222222222)
+        except:
+            print("close")
+            break
+    client.close()
+    sys.exit()
  
 def Main():       
     receive_thread = threading.Thread(target= receive)
     receive_thread.start()
-
-    write_thread = threading.Thread(target=write)
-    write_thread.start()
+    time.sleep(0.1)
+    #write_thread = threading.Thread(target=write)
+    #write_thread.start()
+    display(username)
+    write()
 
 if __name__ == '__main__':
     Main()

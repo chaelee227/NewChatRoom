@@ -60,15 +60,14 @@ def handle(client):
                 broadcast(current_time.encode())
                 continue
             elif(msg == ":Exit"):
-                print("Exit")
                 print(name + "left the chatroom")
-                broadcast(name+ "left the chatroom".encode('ascii'))
-                index = clients.index(client)
-                username = usernames[index]
+                #broadcast(name+ "left the chatroom".encode('ascii'))
+                broadcast((name+ "left the chatroom").encode('ascii'))
                 clients.remove(client)
-                client.close()
-                usernames.remove(username) 
-                continue    
+                time.sleep(0.1)
+                client.send('QUIT'.encode('ascii'))
+                print("sent quit")
+                break    
                 
             else:
                 broadcast(message)
@@ -97,21 +96,29 @@ def receive():
         username = client.recv(1024).decode('ascii')
         client.send('PASS'.encode('ascii'))
         userPwd = client.recv(1024).decode('ascii')
-        usernames.append(username)
-        clients.append(client)
+        #usernames.append(username)
+        #clients.append(client)
         if userPwd == "1234":
-            print(f"Connected with {str(addr)}")
-            #client.send(time.ctime(time.time()).encode()) #현재시간을 전송
+            if username in usernames:
+                print("Username already exist")
+                client.send('DUPL'.encode('ascii'))
+            else:
+                usernames.append(username)
+                clients.append(client)
+                print(f"Connected with {str(addr)}")
+                print(usernames)
+                #client.send(time.ctime(time.time()).encode()) #현재시간을 전송
+                print(f'{username} joined the chatroom\n')
+                broadcast(f'{username} joined the chatroom\n'.encode('ascii'))
+                client.send('Connected to the server!'.encode('ascii'))
             
-            print(f'{username} joined the chatroom\n')
-            broadcast(f'{username} joined the chatroom\n'.encode('ascii'))
-            client.send('Connected to the server!'.encode('ascii'))
-            
-            thread = threading.Thread(target = handle, args=(client,))
-            thread.start()
+                thread = threading.Thread(target = handle, args=(client,))
+                thread.start()
         else:
             print ("password incorrect!! Closing the chatroom")
-            client.send("INCORRECT PASSCODE".encode())
+            #client.send("INCORRECT PASSCODE".encode())
+            client.send('QUIT'.encode('ascii'))
+            print("sent quit")
 			
         #client.close() #소켓 종료
 
