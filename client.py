@@ -33,10 +33,12 @@ if len(username)>8:
     print(username)
     
 if len(userPwd)>5:
-    print("invalid passcode - the passcod has to be up to 5 length")
+    print("Incorrect passcode")
+    sys.stdout.flush()
     sys.exit()
 elif userPwd.isalnum() == False:
-    print("invalid passcode - only alpha numberic character is allowed")
+    print("Incorrect passcode")
+    sys.stdout.flush()
     sys.exit()
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -54,22 +56,23 @@ def receive():
             elif message == 'PASS':
                 client.send(userPwd.encode('ascii'))
             elif message == 'QUIT':
-                print("Bye~")
-                print("Press Return key to restart")
+                #print("Bye~")
+                #print("Press Return key to restart")
+                #sys.stdout.flush()
                 break
-            elif message == 'DUPL':
-                print("Username already exists")
-                print("Press return key to restart")
-                break
+            #elif message == 'DUPL':
+                #print("Username already exists")
+                #sys.stdout.flush()
+                #print("Press return key to restart")
+                #sys.stdout.flush()
+                #break
             else:
-                parse = message.split(":")
-                if parse[0] == username:
-                    print ('\033[1A' + message + '\033[K')
-                    display(username)
-                else:
-                    print(message)
+                #print ('\033[1A' + message + '\033[K')
+                print(message)
+                sys.stdout.flush()
         except:
-            print("An error occurred!")
+            #print("An error occurred!")
+            #sys.stdout.flush()
             break
     client.close()
     sys.exit()
@@ -86,6 +89,7 @@ def write():
             #print(2222222222)
         except:
             print("close")
+            sys.stdout.flush()
             break
     client.close()
     sys.exit()
@@ -94,9 +98,9 @@ def Main():
     receive_thread = threading.Thread(target= receive)
     receive_thread.start()
     time.sleep(0.1)
-    #write_thread = threading.Thread(target=write)
-    #write_thread.start()
-    display(username)
+    # write_thread = threading.Thread(target=write)
+    # write_thread.start()
+    #display(username)
     write()
 
 if __name__ == '__main__':
