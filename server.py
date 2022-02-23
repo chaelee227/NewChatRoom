@@ -15,8 +15,8 @@ port = args.port
 clients = []
 usernames = []
 userPwd = args.passcode
-chatroom_pwd = "1234"
-
+chatroom_pwd = args.passcode
+host = "127.0.0.1"
 
 server = socket.socket(socket.AF_INET,socket.SOCK_STREAM) 
 address = ('127.0.0.1', int(port))  
@@ -34,45 +34,54 @@ def handle(client):
             msgList = message.split()
             name = msgList[0].decode("utf-8")
             msg = msgList[1].decode("utf-8")
+            exitlist = name.split(":")
+            exitname = exitlist[0]
             #print(type(msg))
             #print("this is name " + name)
             #print("this is msg " + msg)
             if(msg == ":)"):
-                print(name+ "[Feeling Happy]\n")
-                broadcast((name+"[Feeling Happy]\n").encode())
+                print(name+ " [feeling happy]")
+                sys.stdout.flush()
+                broadcast((name+" [feeling happy]").encode())
                 continue
             
             elif(msg == ":("):
-                print(name+ "[feeling sad]\n")
-                broadcast((name+"[feeling sad]\n").encode())
+                print(name+ " [feeling sad]")
+                sys.stdout.flush()
+                broadcast((name+" [feeling sad]").encode())
                 continue
             
             elif(msg == ":mytime"):
                 #client.send(time.ctime(time.time()).encode()) #현재시간을 전송
-                print(name+ datetime.now().strftime("%H:%M:%S"))
-                broadcast(datetime.now().strftime("%H:%M:%S").encode())
+                print(name+ datetime.today().strftime("%a %b %-d %H:%M:%S %Y"))
+                sys.stdout.flush()
+                broadcast(datetime.now().strftime("%a %b %-d %H:%M:%S %Y").encode())
                 continue
             
             elif(msg == ":+1hr"):
                 now = datetime.now()+timedelta(hours=1)
-                current_time = now.strftime("%H:%M:%S")
+                current_time = now.strftime("%a %b %-d %H:%M:%S %Y")
                 print(name+ current_time)
+                sys.stdout.flush()
                 broadcast(current_time.encode())
                 continue
             elif(msg == ":Exit"):
-                print("Exit")
-                print(name + "left the chatroom")
-                broadcast(name+ "left the chatroom".encode('ascii'))
-                index = clients.index(client)
-                username = usernames[index]
+                print(exitname + " left the chatroom")
+                sys.stdout.flush()
+                #broadcast(name+ "left the chatroom".encode('ascii'))
+                broadcast((exitname+ " left the chatroom").encode('ascii'))
                 clients.remove(client)
-                client.close()
-                usernames.remove(username) 
-                continue    
+                time.sleep(0.1)
+                parse = name.split(":")
+                name = parse[0]
+                usernames.remove(name)
+                client.send('QUIT'.encode('ascii'))
+                break    
                 
             else:
                 broadcast(message)
                 print(message.decode("utf-8"))
+                sys.stdout.flush()
                 continue
             
         except: #cut the connection to this particular client and remove it from the list and terminate the function
@@ -80,6 +89,7 @@ def handle(client):
             index = clients.index(client)
             username = usernames[index]
             print(f'{username} left the chatroom')
+            sys.stdout.flush()
             broadcast(f'{username} left the chatroom'.encode('ascii'))
             clients.remove(client)
             client.close()
@@ -97,29 +107,42 @@ def receive():
         username = client.recv(1024).decode('ascii')
         client.send('PASS'.encode('ascii'))
         userPwd = client.recv(1024).decode('ascii')
-        usernames.append(username)
-        clients.append(client)
-        if userPwd == "1234":
-            print(f"Connected with {str(addr)}")
-            #client.send(time.ctime(time.time()).encode()) #현재시간을 전송
+        #usernames.append(username)
+        #clients.append(client)
+        if userPwd == chatroom_pwd:
+            if username in usernames:
+                print("Username already exist")
+                sys.stdout.flush()
+                client.send('DUPL'.encode('ascii'))
+            else:
+                
+                #print(f"Connected with {str(addr)}")
+                #print(usernames)
+                #client.send(time.ctime(time.time()).encode()) #현재시간을 전송
+                print(f'{username} joined the chatroom')
+                sys.stdout.flush()
+                broadcast(f'{username} joined the chatroom\n'.encode('ascii'))
+                usernames.append(username)
+                clients.append(client)
+                client.send(("Connected to "+host+" on port " + port).encode('ascii'))
             
-            print(f'{username} joined the chatroom\n')
-            broadcast(f'{username} joined the chatroom\n'.encode('ascii'))
-            client.send('Connected to the server!'.encode('ascii'))
-            
-            thread = threading.Thread(target = handle, args=(client,))
-            thread.start()
+                thread = threading.Thread(target = handle, args=(client,))
+                thread.start()
         else:
             print ("password incorrect!! Closing the chatroom")
-            client.send("INCORRECT PASSCODE".encode())
+            sys.stdout.flush()
+            #client.send("INCORRECT PASSCODE".encode())
+            client.send('QUIT'.encode('ascii'))
+            print("sent quit")
+            sys.stdout.flush()
 			
         #client.close() #소켓 종료
 
 
 def Main():
-    print ("*************************Listening for the clients*************************")
+    print ("Server started on port "+port+". Accepting connections")
+    sys.stdout.flush()
     receive()
     
 if __name__ == '__main__':
     Main()
-
