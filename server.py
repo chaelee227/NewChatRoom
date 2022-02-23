@@ -65,6 +65,10 @@ def handle(client):
                 broadcast((name+ "left the chatroom").encode('ascii'))
                 clients.remove(client)
                 time.sleep(0.1)
+                parse = name.split(":")
+                name = parse[0]
+                print(name)
+                usernames.remove(name)
                 client.send('QUIT'.encode('ascii'))
                 print("sent quit")
                 break    

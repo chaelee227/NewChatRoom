@@ -62,8 +62,12 @@ def receive():
                 print("Press return key to restart")
                 break
             else:
-                print(message)
-                #display(username)
+                parse = message.split(":")
+                if parse[0] == username:
+                    print ('\033[1A' + message + '\033[K')
+                    display(username)
+                else:
+                    print(message)
         except:
             print("An error occurred!")
             break
